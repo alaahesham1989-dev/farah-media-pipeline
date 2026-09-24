@@ -11,7 +11,7 @@ on:
         default: '0'
       max_mb:
         description: 'تخطي الملفات الأكبر من (ميجا)'
-        default: '600'
+        default: '300'
       products:
         description: 'منتجات معينة (أرقام صفقة بفاصلة) — فاضي = الكل'
         default: ''
