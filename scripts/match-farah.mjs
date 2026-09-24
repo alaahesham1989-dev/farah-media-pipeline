@@ -15,12 +15,16 @@ const norm = s => String(s || '').toLowerCase()
   .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[ًٌٍَُِّْـ]/g, '')
   .replace(/[^\p{L}\p{N}\s]/gu, ' ');
 const tokens = s => new Set(norm(s).split(/\s+/).map(t => t.replace(/^ال/, '')).filter(t => t.length > 1 && !STOP.has(t)));
-const score = (a, b) => { const A = tokens(a), B = tokens(b); if (!A.size || !B.size) return 0; let n = 0; for (const t of A) if (B.has(t)) n++; return n / Math.min(A.size, B.size); };
+// كلمات نادرة (زي "فلاوليس" أو "كيمي") وزنها أكبر من الكلمات العامة (زي "جهاز" و"تنظيف")
+const df = new Map();
+for (const c of catalog) for (const t of tokens(c.name)) df.set(t, (df.get(t) || 0) + 1);
+const idf = t => Math.log(1 + catalog.length / (1 + (df.get(t) || 0)));
+const score = (a, b) => { const A = tokens(a), B = tokens(b); if (!A.size || !B.size) return 0; let w = 0, tot = 0; for (const t of A) { tot += idf(t); if (B.has(t)) w += idf(t); } return tot ? w / tot : 0; };
 
 const amazonish = u => /_AC_|amazon|aliexpress|alicdn/i.test(u);
 const out = farah.map(p => {
   const cands = catalog.map(c => ({ c, s: Math.max(score(p.name, c.name), score(p.nameEn, c.name)) }))
-    .filter(x => x.s >= 0.5).sort((a, b) => b.s - a.s).slice(0, 3)
+    .filter(x => x.s >= 0.45).sort((a, b) => b.s - a.s).slice(0, 3)
     .map(({ c, s }) => {
       const fl = (files[c.id] && files[c.id].files) || [];
       return {
@@ -39,7 +43,8 @@ const md = ['# مقارنة منتجات فرح بكتالوج صفقة', '', `�
   '| منتج فرح | سعرنا | أقرب منتج في صفقة | التكلفة عندهم | التشابه | صور | فيديو (ع الطبيعة) |', '|---|---|---|---|---|---|---|',
   ...out.map(r => {
     const c = r.candidates[0];
-    return c ? `| ${r.farah.name} | ${r.farah.price} | ${c.name} | ${c.cost ?? '—'} | ${c.score}% | ${c.images}${c.amazonImages ? ` (${c.amazonImages} أمازون)` : ''} | ${c.videos} (${c.realVideos}) |`
+    const cell = t => String(t).replace(/\|/g, '/');
+    return c ? `| ${cell(r.farah.name)} | ${r.farah.price} | ${cell(c.name)} | ${c.cost ?? '—'} | ${c.score}% | ${c.images}${c.amazonImages ? ` (${c.amazonImages} أمازون)` : ''} | ${c.videos} (${c.realVideos}) |`
       : `| ${r.farah.name} | ${r.farah.price} | — مفيش شبيه | | | | |`;
   })];
 fs.writeFileSync('reports/match.md', md.join('\n'));
