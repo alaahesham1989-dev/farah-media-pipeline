@@ -4,6 +4,7 @@
   "productName": "جهاز تنظيف وإزالة الأوساخ بالبخار",
   "voice": "ar-EG-SalmaNeural",
   "rate": "+6%",
+  "startAt": 1.5,
   "clips": ["1X4JgN_hxEjO3zS53jFcDyeGUiFaVgO1W", "1k9UL0Dz9RvqLNc1zUBuaKO6p-gRT-KSX"],
   "scenes": [
     { "say": "البقع والدهون اللي في المطبخ مش بتروح بسهولة؟", "headline": "الدهون العنيدة؟" },
