@@ -108,4 +108,6 @@ await putJson(STATE, state);
 fs.mkdirSync('previews', { recursive: true });
 fs.writeFileSync('previews/media-map.json', JSON.stringify({ total: state.total, done: state.done }));
 const left = Object.keys(plan).filter(c => !state.done[c]).length;
+// الـ workflow بيشغّل نفسه تاني لو فاضل منتجات ووقف بسبب الوقت بس
+fs.writeFileSync('previews/continue.txt', !ONLY.length && left > 0 && stoppedFor === 'الوقت' ? 'yes' : 'no');
 console.log(`✅ اتنقل ${products} منتج في التشغيل ده (فيهم مشاكل: ${failed}) · الإجمالي في المخزن ${(state.total / 1073741824).toFixed(2)}GB · فاضل ${left} منتج${stoppedFor ? ' · وقف بسبب ' + stoppedFor : ''}`);
