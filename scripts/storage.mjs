@@ -43,6 +43,10 @@ export async function getJson(key, fallback) {
     throw e;
   }
 }
+// ملف → bucket معيّن (مخزن ميديا الموقع farah-media مثلاً)
+export async function putFileTo(bucketName, key, body, contentType) {
+  await s3().send(new PutObjectCommand({ Bucket: bucketName, Key: key, Body: body, ContentType: contentType, CacheControl: 'public, max-age=31536000, immutable' }));
+}
 export async function putJson(key, data) {
   await s3().send(new PutObjectCommand({ Bucket: bucket(), Key: key, Body: JSON.stringify(data, null, 1), ContentType: 'application/json' }));
 }
