@@ -50,7 +50,7 @@ const video720 = (src, out, start, len) => ff([
 let products = 0, failed = 0, stoppedFor = '';
 for (const [code, p] of Object.entries(plan)) {
   if (ONLY.length && !ONLY.includes(code)) continue;
-  if (state.done[code]) continue;
+  if (state.done[code] && !(state.done[code].errors || []).length) continue;
   if (Date.now() > deadline) { stoppedFor = 'الوقت'; break; }
   if (state.total > MAX_TOTAL) { stoppedFor = 'حد المساحة'; break; }
   const out = { images: [], real: null, clips: [], errors: [] };
@@ -93,6 +93,11 @@ for (const [code, p] of Object.entries(plan)) {
   }
 
   fs.rmSync(dir, { recursive: true, force: true });
+  // مفتاح R2 مالوش صلاحية على مخزن الموقع → نقف فوراً بدل ما نلف على كل المنتجات
+  if (out.errors.some(e => /Access Denied|AccessDenied|Unauthorized/i.test(e))) {
+    console.log(`⛔ مفتاح R2 مالوش صلاحية كتابة على ${MEDIA_BUCKET} — زوّد الـ bucket ده في صلاحيات المفتاح (Cloudflare ← R2 ← Manage API tokens) وشغّل تاني.`);
+    process.exit(1);
+  }
   state.done[code] = out;
   products++;
   if (out.errors.length) failed++;
