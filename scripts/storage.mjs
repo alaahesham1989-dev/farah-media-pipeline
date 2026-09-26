@@ -50,3 +50,16 @@ export async function putFileTo(bucketName, key, body, contentType) {
 export async function putJson(key, data) {
   await s3().send(new PutObjectCommand({ Bucket: bucket(), Key: key, Body: JSON.stringify(data, null, 1), ContentType: 'application/json' }));
 }
+// JSON من/إلى bucket معيّن (خطط وخرايط الميديا في private/ بمخزن الموقع)
+export async function getJsonFrom(bucketName, key, fallback) {
+  try {
+    const r = await s3().send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
+    return JSON.parse(await r.Body.transformToString());
+  } catch (e) {
+    if (e.$metadata?.httpStatusCode === 404 || e.name === 'NoSuchKey') return fallback;
+    throw e;
+  }
+}
+export async function putJsonTo(bucketName, key, data) {
+  await s3().send(new PutObjectCommand({ Bucket: bucketName, Key: key, Body: JSON.stringify(data), ContentType: 'application/json', CacheControl: 'no-store' }));
+}
