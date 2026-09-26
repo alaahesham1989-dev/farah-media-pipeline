@@ -50,7 +50,8 @@ const video720 = (src, out, start, len) => ff([
 let products = 0, failed = 0, stoppedFor = '';
 for (const [code, p] of Object.entries(plan)) {
   if (ONLY.length && !ONLY.includes(code)) continue;
-  if (state.done[code] && !(state.done[code].errors || []).length) continue;
+  // بنعيد بس اللي فشل لسبب مؤقت (حد درايف / النت) — الأكبر من الحد أو الملف البايظ مالوش لازمة نعيده كل يوم
+  if (state.done[code] && !(state.done[code].errors || []).some(e => !/أكبر من|ffprobe/.test(e))) continue;
   if (Date.now() > deadline) { stoppedFor = 'الوقت'; break; }
   if (state.total > MAX_TOTAL) { stoppedFor = 'حد المساحة'; break; }
   const out = { images: [], real: null, clips: [], errors: [] };

@@ -1,6 +1,12 @@
 name: نقل ميديا المكتبة لمخزن الموقع
 
+# بيشتغل: يدوي · كل يوم الساعة 6 الصبح بتوقيت مصر (بعد ما حد درايف اليومي يفتح) بيعيد اللي فشل · أو لما triggers/catalog-media.txt يتغير
 on:
+  schedule:
+    - cron: '0 3 * * *'
+  push:
+    branches: [main]
+    paths: ['triggers/catalog-media.txt']
   workflow_dispatch:
     inputs:
       codes:
