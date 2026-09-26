@@ -1,8 +1,0 @@
-node_modules/
-.env
-*.local.json
-tmp/
-
-# بيانات المكتبة (أسعار الموردين، الأوصاف، المطابقة، ملفات المنتجات) — محلية بس، مش في المشروع العام
-catalog/*
-!catalog/media-plan.json
