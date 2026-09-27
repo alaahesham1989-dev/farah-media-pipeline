@@ -1,0 +1,54 @@
+name: تصليح وتكملة ميديا المكتبة
+
+# تقص الحتت الوحشة من فيديوهات المنتجات (الأصل مابيتمسحش) + تسحب فيديوهات «ع الطبيعة» الكبيرة + مكتبة Pexels المجانية
+# الخطة: catalog/media-fixes.json · بيشتغل: يدوي أو لما triggers/media-fix.txt يتغير
+on:
+  push:
+    branches: [main]
+    paths: ['triggers/media-fix.txt']
+  workflow_dispatch:
+    inputs:
+      parts:
+        description: 'إيه اللي يتعمل (fixes,big,stock)'
+        default: 'fixes,big,stock'
+
+concurrency: media-fix
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && ffmpeg -version | head -1
+      - run: npm ci
+      - name: تصليح
+        run: node scripts/media-fix.mjs
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          MEDIA_BUCKET: farah-media
+          PARTS: ${{ inputs.parts || 'fixes,big,stock' }}
+      - name: حفظ الخريطة في فرع media-fixes
+        if: always()
+        run: |
+          [ -f previews/media-fixes-map.json ] || exit 0
+          git config user.name "farah-media-bot"
+          git config user.email "farah-media-bot@users.noreply.github.com"
+          cp previews/media-fixes-map.json /tmp/media-fixes.json
+          git checkout --orphan media-fixes-tmp
+          git rm -rq --cached . >/dev/null 2>&1 || true
+          cp /tmp/media-fixes.json media-fixes.json
+          git add -f media-fixes.json
+          git commit -m "media fixes map" || echo "nothing to commit"
+          git push -f origin HEAD:media-fixes
