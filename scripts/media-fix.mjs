@@ -56,7 +56,7 @@ function fixFilter(job, audio, dur) {
   let last = 'vc';
   (job.blur || []).forEach(([x, y, w, h, t0, t1], i) => {
     const en = t0 != null ? `:enable='between(t,${t0},${t1 ?? 9999})'` : '';
-    parts.push(`[${last}]split[m${i}][s${i}]`, `[s${i}]crop=iw*${pct(w)}:ih*${pct(h)}:iw*${pct(x)}:ih*${pct(y)},boxblur=22:6[b${i}]`, `[m${i}][b${i}]overlay=W*${pct(x)}:H*${pct(y)}${en}[o${i}]`);
+    parts.push(`[${last}]split[m${i}][s${i}]`, `[s${i}]crop=iw*${pct(w)}:ih*${pct(h)}:iw*${pct(x)}:ih*${pct(y)},boxblur=luma_radius='min(22,min(w,h)/2-1)':luma_power=6:chroma_radius='min(10,min(cw,ch)/2-1)':chroma_power=6[b${i}]`, `[m${i}][b${i}]overlay=W*${pct(x)}:H*${pct(y)}${en}[o${i}]`);
     last = `o${i}`;
   });
   if (job.crop) { const [x, y, w, h] = job.crop; parts.push(`[${last}]crop=iw*${pct(w)}:ih*${pct(h)}:iw*${pct(x)}:ih*${pct(y)},scale=trunc(iw/2)*2:trunc(ih/2)*2[cr]`); last = 'cr'; }
