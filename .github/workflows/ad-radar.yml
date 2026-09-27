@@ -1,0 +1,35 @@
+name: رادار عروض الإعلانات
+
+# كل يوم الساعة 8 الصبح بتوقيت مصر — أو يدوي، أو لما triggers/ad-radar.txt يتغير
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  push:
+    branches: [main]
+    paths: ['triggers/ad-radar.txt']
+  workflow_dispatch:
+
+concurrency: ad-radar
+
+permissions:
+  contents: read
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: فحص صفحات العروض
+        run: node scripts/ad-radar.mjs
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          MEDIA_BUCKET: farah-media
