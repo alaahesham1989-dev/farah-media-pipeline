@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>استوديو فرح — تجريبي</title>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/web/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="/brand/mark.png" alt=""><div><b>استوديو فرح</b><small>تجريبي · منفصل عن المتجر ولوحته</small></div></div>
+  <nav class="tabs" role="tablist">
+    <button class="on" data-tab="image">🖼️ صورة</button>
+    <button data-tab="video">🎬 فيديو</button>
+    <button data-tab="gallery">🗂️ المعرض</button>
+    <button data-tab="rules">📘 القواعد</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ───── الصور ───── -->
+  <section id="tab-image" class="tab on">
+    <div class="split">
+      <aside class="controls">
+        <div class="grp"><label>النوع</label><div class="chips" id="types"></div></div>
+        <div class="grp"><label>الشكل</label><div class="cards" id="templates"></div></div>
+        <div class="grp"><label>الموسم</label><div class="swatches" id="skins"></div></div>
+        <div class="grp"><label>المقاس</label><div class="chips" id="formats"></div></div>
+
+        <div class="grp" data-for="product sale brand video">
+          <label>المنتج <small>(الاسم والسعر والصورة بيتسحبوا لوحدهم)</small></label>
+          <input id="q" type="search" placeholder="دوّر باسم المنتج أو الكود…">
+          <select id="product" size="1"></select>
+          <div class="thumbs" id="images"></div>
+          <div class="row2"><label class="chk"><input type="checkbox" id="fitContain"> الصورة كاملة من غير قص</label></div>
+        </div>
+        <div class="grp" data-for="sale">
+          <label>عرض من المتجر <small>(اختياري)</small></label>
+          <select id="offer"><option value="">— من غير عرض —</option></select>
+        </div>
+
+        <div class="grp" id="fields"></div>
+
+        <div class="grp actions">
+          <button class="btn gold" id="exportOne">⬇️ صدّر المقاس ده</button>
+          <button class="btn" id="exportAll">⬇️ صدّر 3 مقاسات</button>
+          <button class="btn" id="sheetType">🧾 كل الأشكال</button>
+          <button class="btn" id="sheetSkins">🎨 كل المواسم</button>
+          <button class="btn ghost" id="copyJob">📋 انسخ أمر التصميم</button>
+          <button class="btn ghost" id="aiSuggest">✨ اقترح جمل</button>
+        </div>
+        <div id="aiBox" class="ai" hidden></div>
+        <div id="results" class="results"></div>
+      </aside>
+
+      <section class="preview">
+        <div class="pv-bar"><span id="pvInfo"></span><button class="btn sm" id="play">▶️ شوف الحركة</button></div>
+        <div class="frame-wrap" id="frameWrap"><iframe id="stage" src="/engine/stage.html" title="المعاينة"></iframe></div>
+        <p class="hint">المعاينة هي نفس الرسم النهائي بالظبط. الأرقام والأسعار جاية من المتجر؛ أي خانة تكتبها بإيدك بتكسب.</p>
+      </section>
+    </div>
+  </section>
+
+  <!-- ───── الفيديو ───── -->
+  <section id="tab-video" class="tab">
+    <div class="split">
+      <aside class="controls">
+        <div class="grp"><label>نوع الفيديو</label><div class="cards" id="presets"></div></div>
+        <div class="grp"><label>الموسم</label><div class="swatches" id="vskins"></div></div>
+        <div class="grp" id="vfields"></div>
+        <div class="grp">
+          <label>الصوت</label>
+          <select id="voice">
+            <option value="ar-EG-SalmaNeural">سلمى (ست — مصري)</option>
+            <option value="ar-EG-ShakirNeural">شاكر (راجل — مصري)</option>
+            <option value="elevenlabs">ElevenLabs (محتاج مفتاح في .env)</option>
+            <option value="gemini">صوت جيميناي (محتاج مفتاح في .env)</option>
+            <option value="">من غير صوت (مزيكا وكلام مكتوب بس)</option>
+          </select>
+          <small class="note">الصوت المجاني ده للتجربة. للإعلانات الحقيقية بنغيّره لصوت برخصة تجارية (شوف القواعد).</small>
+        </div>
+        <div class="grp actions"><button class="btn gold" id="makeVideo">🎬 اعمل الفيديو</button></div>
+        <div id="vlog" class="log"></div>
+      </aside>
+      <section class="preview">
+        <div class="pv-bar"><span id="vInfo">الفيديو هيظهر هنا</span></div>
+        <div class="video-wrap"><video id="vplayer" controls playsinline></video></div>
+        <div id="vstory" class="story"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ───── المعرض ───── -->
+  <section id="tab-gallery" class="tab">
+    <div class="pv-bar"><span>كل اللي اتعمل (آخر 300)</span><button class="btn sm" id="refreshGallery">🔄 تحديث</button></div>
+    <div id="gallery" class="gallery"></div>
+  </section>
+
+  <!-- ───── القواعد ───── -->
+  <section id="tab-rules" class="tab"><article id="rules" class="md"></article></section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="/web/app.js"></script>
+</body>
+</html>

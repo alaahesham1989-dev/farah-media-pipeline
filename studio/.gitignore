@@ -1,0 +1,12 @@
+node_modules/
+.env
+out/
+tmp/
+cache/
+data/
+# ملفات برخصة مايتنشرش لوحدها (مزيكا/صور مفتوحة المصدر) أو صوت/لقطات منتجات — بتترفع متشفرة في assets-enc/ بس
+assets/music/*.mp3
+assets/products/
+assets/voice/
+# سيناريوهات مبنية من ملفات التسويق (فيها أوصاف موردين) — محلية بس
+storyboards/kits/

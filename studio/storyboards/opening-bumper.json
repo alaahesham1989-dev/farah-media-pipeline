@@ -1,0 +1,123 @@
+{
+ "name": "opening-bumper",
+ "note": "نسخة 6 ثواني من فيديو الافتتاح (Bumper): جملة الخصم + أكبر خصم (كيمي 49%) + الطلب. نفس المزيكا والإيقاع (109 BPM).",
+ "format": "story",
+ "skin": "farah",
+ "fps": 30,
+ "voice": null,
+ "music": "assets/music/oriental-edm-fusion.mp3",
+ "musicStart": 140.072,
+ "musicVolume": 0.95,
+ "autoWhoosh": false,
+ "transitions": [
+  "fade"
+ ],
+ "transitionDur": 0.12,
+ "scenes": [
+  {
+   "angle": "الهوك + العرض",
+   "template": "v-slam",
+   "dur": 2.322,
+   "data": {
+    "lines": [
+     {
+      "text": "افتتاح فرح مصر",
+      "at": 0.04,
+      "size": 112
+     },
+     {
+      "text": "خصومات لحد",
+      "at": 0.3,
+      "size": 96
+     },
+     {
+      "text": "**49%**",
+      "at": 0.55,
+      "size": 240
+     },
+     {
+      "text": "من النهارده لـ5 أكتوبر",
+      "at": 1.1,
+      "size": 72
+     }
+    ]
+   },
+   "sfx": [
+    {
+     "s": "hit",
+     "at": 0.04,
+     "v": 0.55
+    },
+    {
+     "s": "hit",
+     "at": 0.55,
+     "v": 0.7
+    },
+    {
+     "s": "pop",
+     "at": 1.1,
+     "v": 0.35
+    }
+   ]
+  },
+  {
+   "angle": "منتج بخصم",
+   "template": "v-flash",
+   "dur": 1.221,
+   "data": {
+    "image": "https://farahegypt.com/images/products/5881709725215297418.jpg",
+    "name": "ماكينة حلاقة كيمي",
+    "price": 250,
+    "oldPrice": 488,
+    "tag": "عرض الافتتاح"
+   },
+   "sfx": [
+    {
+     "s": "pop",
+     "at": 0.12,
+     "v": 0.22
+    }
+   ]
+  },
+  {
+   "angle": "الطلب + «مبروك»",
+   "template": "v-cta",
+   "dur": 2.697,
+   "data": {
+    "grid": [
+     "https://farahegypt.com/images/products/5881709725215297418.jpg",
+     "https://farahegypt.com/images/products/5881709725215297391.jpg",
+     "https://farahegypt.com/images/products/5967608899336604470.jpg",
+     "https://farahegypt.com/images/products/5897814783128440127.jpg"
+    ],
+    "bg": "/assets/products/code0013/ai/wedding-hall2.jpg",
+    "bgBlur": 6,
+    "cta": "ادخلي واطلبي دلوقتي",
+    "labels": [
+     "عروض الافتتاح لحد 5 أكتوبر"
+    ],
+    "icons": [
+     "gift"
+    ],
+    "labelsAt": [
+     0.1
+    ],
+    "ctaAt": 0.45,
+    "note": "مبروك علينا وعليكي!",
+    "noteAt": 1.1
+   },
+   "sfx": [
+    {
+     "s": "riser",
+     "at": -1.1,
+     "v": 0.35
+    },
+    {
+     "s": "hit",
+     "at": 1.1,
+     "v": 0.6
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+name: استوديو فرح — مفتاح تشفير الملفات المرخصة
+
+# بيعمل (مرة واحدة) مفتاح تشفير على السحابة: الخاص في R2 (مابيطلعش برا)، والعام بيترفع في studio/assets-enc
+on:
+  push:
+    branches: [main]
+    paths: ['triggers/studio-keygen.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keygen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: المفتاح
+        run: node studio/tools/assets-crypt.mjs keygen
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          MEDIA_BUCKET: farah-media
+      - name: رفع المفتاح العام
+        run: |
+          git config user.name "farah-media-bot"
+          git config user.email "farah-media-bot@users.noreply.github.com"
+          git add studio/assets-enc/asset-key.pub.pem
+          git commit -m "Studio: public key for licensed assets" || echo "nothing to commit"
+          git pull --rebase origin main && git push origin HEAD:main

@@ -1,0 +1,242 @@
+{
+ "name": "code0013-master",
+ "note": "إعلان جهاز تجعيد الشعر الأوتوماتيك — «عندنا فرح.. وإنتي المعزومة». كل مشهد عليه زاويته في angle. بدون رقم واتساب (طلب المالك). مابنذكرش ماركة العلبة. الصور المتخيلة: صور حقيقية من Pexels (assets/products/code0013/ai/SOURCES.txt). | 28/9: السعر بقى عرض الافتتاح 799 بدل 1099 (سطر صوت جديد price-a.mp3 مركّب في master-comp2).",
+ "format": "story",
+ "skin": "farah",
+ "fps": 30,
+ "voice": {
+  "name": "ar-EG-SalmaNeural",
+  "rate": "+4%"
+ },
+ "transitions": [
+  "zoomin",
+  "smoothleft",
+  "slideleft",
+  "hblur",
+  "smoothright",
+  "zoomin",
+  "slideleft",
+  "fade"
+ ],
+ "transitionDur": 0.28,
+ "scenes": [
+  {
+   "angle": "الهوك + البراند (دعوة الفرح)",
+   "template": "v-intro",
+   "data": {
+    "t1": 0.45,
+    "t2": 1.35
+   },
+   "say": "عندنا فرح… وإنتي المعزومة!",
+   "sfx": [
+    {
+     "s": "riser",
+     "at": 0,
+     "v": 0.35
+    },
+    {
+     "s": "hit",
+     "at": 1.35,
+     "v": 0.6
+    }
+   ],
+   "vt": 0
+  },
+  {
+   "angle": "الضرورة (الموقف)",
+   "template": "v-scene",
+   "data": {
+    "image": "/assets/products/code0013/ai/getting-ready.jpg",
+    "move": "drone",
+    "headline": "شعرك لسه **مش جاهز؟**",
+    "oy": 40
+   },
+   "say": "بس شعرك لسه مش جاهز… والكوافير زحمة؟",
+   "vt": 2.4
+  },
+  {
+   "angle": "التوثيق (المنتج الحقيقي)",
+   "clip": "cache/clips/code0013/real.mp4",
+   "from": 28.3,
+   "zoom": [
+    1.02,
+    1.3
+   ],
+   "panY": [
+    62,
+    38
+   ],
+   "ox": 52,
+   "overlay": "v-overlay",
+   "data": {
+    "headline": "جهاز تجعيد **أوتوماتيك**",
+    "tag": "تصوير حقيقي للمنتج"
+   },
+   "say": "ده جهاز تجعيد الشعر الأوتوماتيك.",
+   "sfx": [
+    {
+     "s": "pop",
+     "at": 0.3,
+     "v": 0.3
+    }
+   ],
+   "vt": 5.62
+  },
+  {
+   "angle": "الأداء (بيلف لوحده)",
+   "clip": "cache/clips/code0013/clip2.mp4",
+   "from": 7.3,
+   "zoom": [
+    1.04,
+    1.16
+   ],
+   "pan": [
+    42,
+    58
+   ],
+   "oy": 45,
+   "blur": [
+    [
+     0.12,
+     0.62,
+     0.76,
+     0.14
+    ]
+   ],
+   "overlay": "v-overlay",
+   "data": {
+    "headline": "بيلف الخصلة **لوحده**",
+    "labels": [
+     "حطي الخصلة",
+     "دوسي",
+     "يلفّها لوحده"
+    ]
+   },
+   "say": "حطي الخصلة… دوسي… وهو يلفّها لوحده.",
+   "vt": 7.88
+  },
+  {
+   "angle": "الاستخدام (سهل للمبتدئات)",
+   "clip": "cache/clips/code0013/clip1.mp4",
+   "from": 0,
+   "speed": 1.1,
+   "zoom": [
+    1.2,
+    1.02
+   ],
+   "pan": [
+    62,
+    40
+   ],
+   "oy": 40,
+   "overlay": "v-overlay",
+   "data": {
+    "headline": "من غير **خبرة**"
+   },
+   "say": "من غير خبرة… ومن غير ما تلفّي بإيدك.",
+   "vt": 11.08
+  },
+  {
+   "angle": "الأداء (الحرارة)",
+   "clip": "cache/clips/code0013/real.mp4",
+   "from": 41.8,
+   "zoom": [
+    1.45,
+    1.75
+   ],
+   "pan": [
+    15,
+    55
+   ],
+   "oy": 88,
+   "overlay": "v-overlay",
+   "data": {
+    "headline": "درجات حرارة **متعددة**"
+   },
+   "say": "وفيه درجات حرارة… تختاري اللي تناسب شعرك.",
+   "speed": 0.72,
+   "vt": 13.83
+  },
+  {
+   "angle": "الاستخدام (في البيت قبل الفرح)",
+   "template": "v-scene",
+   "data": {
+    "image": "/assets/products/code0013/ai/ready-curls.jpg",
+    "move": "rise",
+    "card": "/assets/products/code0013/curls-real.jpg",
+    "cardAt": 0.4,
+    "cardTop": 700,
+    "headline": "الكيرلي **بتاعك**"
+   },
+   "say": "وتعملي الكيرلي بتاعك… وإنتي في أوضتك.",
+   "vt": 16.86
+  },
+  {
+   "angle": "العرض (السعر)",
+   "template": "v-price",
+   "product": "code0013",
+   "data": {
+    "image": "/assets/products/code0013/device.jpg",
+    "oldPrice": 1099,
+    "label": "عرض الافتتاح",
+    "badge": "شحن لكل المحافظات",
+    "bg": "/assets/products/code0013/ai/wedding-hall2.jpg",
+    "bgBlur": 14,
+    "countAt": 1.55,
+    "countDur": 0.8,
+    "price": 799,
+    "strikeAt": 1.3
+   },
+   "say": "وفي عرض الافتتاح… بسبعمية تسعة وتسعين جنيه بس!",
+   "sfx": [
+    {
+     "s": "ding",
+     "at": 2.4,
+     "v": 0.6
+    }
+   ],
+   "vt": 19.4
+  },
+  {
+   "angle": "الثقة + الطلب + طقس «مبروك»",
+   "template": "v-cta",
+   "data": {
+    "image": "/assets/products/code0013/device.jpg",
+    "cta": "اطلبيه دلوقتي",
+    "labels": [
+     "استبدال خلال 14 يوم",
+     "شحن لكل المحافظات"
+    ],
+    "icons": [
+     "refresh",
+     "truck"
+    ],
+    "ctaAt": 2.5,
+    "note": "ومبروك عليكي مقدّمًا!",
+    "noteAt": 4.55,
+    "bg": "/assets/products/code0013/ai/wedding-hall.jpg",
+    "bgBlur": 5
+   },
+   "say": "واستبدال خلال أربعتاشر يوم… اطلبيه دلوقتي من فرح مصر… ومبروك عليكي مقدّمًا!",
+   "tail": 1.5,
+   "sfx": [
+    {
+     "s": "riser",
+     "at": -1.1,
+     "v": 0.4
+    },
+    {
+     "s": "hit",
+     "at": 0.55,
+     "v": 0.45
+    }
+   ],
+   "vt": 23.72
+  }
+ ],
+ "voiceTrack": {
+  "file": "assets/voice/code0013/master-comp2.mp3",
+  "words": "assets/voice/code0013/master-comp2.words.json",
+  "source": "ElevenLabs v3 — Farah Egypt — تركيب من 3 تسجيلات (أحسن نطق لكل جملة: tools/voice-comp.mjs) — خطة مجانية = معاينة بس"
+ }
+}

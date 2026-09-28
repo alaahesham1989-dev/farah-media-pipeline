@@ -1,0 +1,122 @@
+{
+ "name": "sample-joy-brush",
+ "format": "story",
+ "skin": "farah",
+ "fps": 30,
+ "voice": {
+  "name": "ar-EG-SalmaNeural",
+  "rate": "+12%"
+ },
+ "transitions": [
+  "smoothleft",
+  "zoomin",
+  "hblur",
+  "slideleft",
+  "smoothright"
+ ],
+ "transitionDur": 0.28,
+ "scenes": [
+  {
+   "template": "v-hook",
+   "product": "code0009",
+   "imageIndex": 4,
+   "data": {
+    "headline": "نشّف وصفّف **في خطوة**",
+    "move": "snap"
+   },
+   "say": "شعرك يتنشف ويتصفف في نفس الوقت؟",
+   "dur": 2.2,
+   "sfx": [
+    {
+     "s": "hit",
+     "at": 0.1,
+     "v": 0.7
+    }
+   ]
+  },
+  {
+   "template": "v-shot",
+   "product": "code0009",
+   "imageIndex": 0,
+   "data": {
+    "headline": "فرشاة **جوي**",
+    "move": "orbit"
+   },
+   "say": "دي فرشاة جوي، تنشيف وتصفيف بجهاز واحد.",
+   "sfx": [
+    {
+     "s": "pop",
+     "at": 0.2,
+     "v": 0.35
+    }
+   ]
+  },
+  {
+   "template": "v-shot",
+   "product": "code0009",
+   "imageIndex": 5,
+   "data": {
+    "headline": "درجات حرارة **متعددة**",
+    "move": "punch",
+    "ox": 30,
+    "oy": 75
+   },
+   "say": "تختاري درجة الحرارة اللي تناسب شعرك.",
+   "sfx": [
+    {
+     "s": "pop",
+     "at": 0.2,
+     "v": 0.35
+    }
+   ]
+  },
+  {
+   "template": "v-split",
+   "product": "code0009",
+   "data": {
+    "image": "https://farahegypt.com/images/products/ai/code0009/ai-2.webp",
+    "image2": "https://farahegypt.com/images/products/ai/code0009/ai-1.webp",
+    "headline": "سلك بيلف **360°**",
+    "label1": "بيلف معاكي",
+    "label2": "من غير لخبطة"
+   },
+   "say": "والسلك بيلف معاكي، فمفيش لخبطة."
+  },
+  {
+   "template": "v-price",
+   "product": "code0009",
+   "imageIndex": 6,
+   "data": {
+    "badge": "شحن لكل المحافظات"
+   },
+   "say": "كل ده بألف ومتين جنيه بس.",
+   "sfx": [
+    {
+     "s": "ding",
+     "at": 1.5,
+     "v": 0.6
+    }
+   ]
+  },
+  {
+   "template": "brand-cta",
+   "data": {
+    "cta": "اطلبيها دلوقتي"
+   },
+   "say": "اطلبيها دلوقتي من فرح مصر.",
+   "dur": 2.8,
+   "sfx": [
+    {
+     "s": "riser",
+     "at": -1.1,
+     "v": 0.45
+    },
+    {
+     "s": "hit",
+     "at": 0.55,
+     "v": 0.5
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,99 @@
+/* ─────────────────────────────────────────────────────────────
+   استوديو فرح — الأساس المشترك لكل القوالب
+   كل القوالب بتتصمم على عرض 1080 بكسل. الألوان كلها متغيرات جاية من السكين (skins.js)
+   فأي قالب ينفع مع أي موسم من غير ما نلمسه.
+   ───────────────────────────────────────────────────────────── */
+@import url('/assets/fonts/fonts.css');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: transparent; }
+body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+img { display: block; }
+
+.cv {
+  --f-display: 'Alexandria', 'Cairo', sans-serif;
+  --f-body: 'IBM Plex Sans Arabic', 'Cairo', sans-serif;
+  --f-lux: 'El Messiri', 'Alexandria', serif;
+  --f-heavy: 'Lalezar', 'Alexandria', sans-serif;
+  --f-kufi: 'Reem Kufi', 'Alexandria', sans-serif;
+  --f-mono: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  position: relative; overflow: hidden; direction: rtl;
+  width: var(--W); height: var(--H);
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body);
+  font-feature-settings: 'lnum' 1;
+}
+.cv.transparent { background: transparent; }
+
+/* المقاسات + المناطق الآمنة (في الطولي أعلى 250 وأسفل 420 بتغطيهم زراير انستجرام/تيك توك) */
+.f-square   { --W: 1080px; --H: 1080px; --st: 64px;  --sb: 64px;  --sx: 64px; }
+.f-portrait { --W: 1080px; --H: 1350px; --st: 72px;  --sb: 72px;  --sx: 64px; }
+.f-story    { --W: 1080px; --H: 1920px; --st: 250px; --sb: 420px; --sx: 72px; }
+
+.decor { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.decor svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* ذيل الستوري: المنطقة اللي تحت بتتغطى بزراير التطبيق، فبنحط فيها حاجة مش مهمة لو اتغطت */
+.story-foot { position: absolute; z-index: 1; left: var(--sx); right: var(--sx); bottom: 170px; display: flex; flex-direction: column; align-items: center; gap: 18px; color: var(--ink2); text-align: center; }
+.story-foot .ln { width: 220px; height: 3px; background: var(--foil); border-radius: 2px; opacity: .8; }
+.story-foot .s1 { font-family: var(--f-display); font-weight: 600; font-size: 30px; }
+.story-foot .s2 { font-family: var(--f-display); font-weight: 500; font-size: 26px; direction: ltr; letter-spacing: .04em; }
+.layer { position: absolute; inset: 0; z-index: 1; }
+.safe { position: absolute; z-index: 2; top: var(--st); bottom: var(--sb); left: var(--sx); right: var(--sx); }
+
+/* ── أجزاء مشتركة ── */
+.foil-text { background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent; padding-block: .14em .24em; margin-block: -.14em -.24em; -webkit-box-decoration-break: clone; }
+.foil-bg { background: var(--foil); color: var(--foil-ink); }
+.ic { display: inline-block; width: 1em; height: 1em; background: currentColor;
+  -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; flex: none; }
+
+.mark { width: var(--s, 96px); height: var(--s, 96px); background: url('/brand/mark.png') center / contain no-repeat; filter: var(--mark-filter, none); flex: none; }
+.lockup { display: inline-flex; align-items: center; gap: 18px; }
+.lockup .nm { display: flex; flex-direction: column; line-height: 1.05; }
+.lockup .ar { font-family: var(--f-lux); font-weight: 700; font-size: var(--ls, 40px); color: var(--lock-ink, var(--acc)); }
+.lockup .en { font-family: var(--f-display); font-weight: 500; font-size: calc(var(--ls, 40px) * .38); letter-spacing: .32em; color: var(--lock-ink2, var(--ink2)); direction: ltr; text-align: right; margin-top: 6px; }
+
+.pill { display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 12px 28px; font-weight: 700; }
+.season { display: inline-flex; align-items: center; gap: 12px; padding: 12px 30px; border-radius: 999px;
+  background: var(--season-bg, var(--acc)); color: var(--season-ink, var(--acc-ink)); font-family: var(--f-display); font-weight: 700; font-size: 32px; }
+
+.price { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--f-display); font-weight: 800; line-height: 1; direction: rtl; }
+.price .cur { font-size: .42em; font-weight: 700; }
+.old { font-family: var(--f-display); font-weight: 500; color: var(--old, var(--ink2)); text-decoration: line-through; text-decoration-thickness: 3px; text-decoration-color: var(--sale); line-height: 1; }
+
+.ph { position: relative; overflow: hidden; background: var(--photo); }
+.ph > img { width: 100%; height: 100%; object-fit: var(--fit, contain); object-position: var(--pos, center); }
+.ph.pad > img { padding: var(--pad, 48px); }
+.cut { filter: drop-shadow(0 40px 50px rgba(0,0,0,.28)); object-fit: contain; }
+
+.name { font-family: var(--f-display); font-weight: 800; line-height: 1.2; }
+.sub  { font-family: var(--f-body); font-weight: 500; color: var(--ink2); line-height: 1.45; }
+.site { font-family: var(--f-display); font-weight: 500; letter-spacing: .04em; direction: ltr; }
+.hl   { font-family: var(--f-display); font-weight: 800; line-height: 1.15; }
+
+/* ── الحركة (للفيديو بس؛ الصور الثابتة بتاخد الشكل النهائي) ──
+   أي عنصر عليه data-a بيتحرك، و --d = بيبدأ إمتى */
+.static [data-a], .static [data-a] * { animation: none !important; }
+.anim [data-a] { animation-duration: .9s; animation-timing-function: var(--ease); animation-fill-mode: both; animation-delay: var(--d, 0s); }
+.anim [data-a="rise"]  { animation-name: a-rise; }
+.anim [data-a="fade"]  { animation-name: a-fade; animation-timing-function: ease; }
+.anim [data-a="pop"]   { animation-name: a-pop; animation-duration: .75s; }
+.anim [data-a="left"]  { animation-name: a-left; }
+.anim [data-a="right"] { animation-name: a-right; }
+.anim [data-a="wipe"]  { animation-name: a-wipe; animation-duration: 1.1s; }
+.anim [data-a="drop"]  { animation-name: a-drop; animation-duration: 1s; }
+.anim [data-a="spin"]  { animation-name: a-spin; animation-duration: 1s; }
+.anim [data-a="zoom"]  { animation-name: a-zoom; animation-duration: var(--dur, 4s); animation-timing-function: linear; animation-delay: 0s; }
+.anim [data-a="pan"]   { animation-name: a-pan; animation-duration: var(--dur, 4s); animation-timing-function: linear; animation-delay: 0s; }
+.anim [data-a="float"] { animation-name: a-float; animation-duration: 3s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+@keyframes a-rise  { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+@keyframes a-fade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes a-pop   { 0% { opacity: 0; transform: scale(.4) rotate(var(--r0, 0deg)); } 60% { opacity: 1; transform: scale(1.08) rotate(var(--r, 0deg)); } 100% { opacity: 1; transform: scale(1) rotate(var(--r, 0deg)); } }
+@keyframes a-left  { from { opacity: 0; transform: translateX(-120px); } to { opacity: 1; transform: none; } }
+@keyframes a-right { from { opacity: 0; transform: translateX(120px); } to { opacity: 1; transform: none; } }
+@keyframes a-wipe  { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes a-drop  { 0% { opacity: 0; transform: translateY(-160px) rotate(var(--r, 0deg)); } 70% { opacity: 1; transform: translateY(12px) rotate(var(--r, 0deg)); } 100% { opacity: 1; transform: rotate(var(--r, 0deg)); } }
+@keyframes a-spin  { from { opacity: 0; transform: rotate(calc(var(--r, 0deg) - 90deg)) scale(.3); } to { opacity: 1; transform: rotate(var(--r, 0deg)) scale(1); } }
+@keyframes a-zoom  { from { transform: scale(1); } to { transform: scale(1.1); } }
+@keyframes a-pan   { from { transform: scale(1.12) translateX(3%); } to { transform: scale(1.12) translateX(-3%); } }
+@keyframes a-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
