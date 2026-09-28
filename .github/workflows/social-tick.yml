@@ -1,0 +1,27 @@
+name: فرح — الناشر المجدول (ريلز وحالات)
+
+# كل 10 دقايق بيندّه /api/social-tick في المتجر: بينشر اللي المالك وافق عليه وجه ميعاده (قناة واحدة كل ندهة).
+# مفيش مفاتيح هنا: الناشر في المتجر نفسه، وده بس «منبّه».
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency: social-tick
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: انشر اللي جه ميعاده
+        run: |
+          for i in 1 2 3 4; do
+            R=$(curl -sS -X POST --max-time 110 https://farahegypt.com/api/social-tick || echo '{}')
+            echo "$R"
+            echo "$R" | grep -q '"idle":true' && break
+            echo "$R" | grep -q '"busy":true' && break
+            sleep 2
+          done
