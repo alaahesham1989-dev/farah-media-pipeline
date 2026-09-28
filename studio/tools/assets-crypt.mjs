@@ -14,13 +14,19 @@ const PUB = path.join(ENC, 'asset-key.pub.pem');
 const KEY_R2 = 'private/studio/asset-key.pem';
 const BUCKET = process.env.MEDIA_BUCKET || 'farah-media';
 
+// أي خطأ بيطلع كملاحظة في GitHub (annotation) عشان يتقري من غير صلاحيات
+const oneLine = e => String((e && (e.stack || e.message)) || e).split('\n').join(' | ').slice(0, 900);
+process.on('uncaughtException', e => { console.log(`::error title=assets-crypt::${oneLine(e)}`); process.exit(1); });
+process.on('unhandledRejection', e => { console.log(`::error title=assets-crypt::${oneLine(e)}`); process.exit(1); });
+
 async function r2() { return import('../../scripts/storage.mjs'); }
 async function getPrivate() {
   if (process.env.ASSET_KEY_FILE) return fs.readFileSync(process.env.ASSET_KEY_FILE, 'utf8');
   const { s3 } = await r2();
   const { GetObjectCommand } = await import('@aws-sdk/client-s3');
   try { const r = await s3().send(new GetObjectCommand({ Bucket: BUCKET, Key: KEY_R2 })); return await r.Body.transformToString(); }
-  catch (e) { if (e.$metadata?.httpStatusCode === 404 || e.name === 'NoSuchKey') return null; throw e; }
+  // الملف مش موجود: R2 ساعات بيرجّع 403 بدل 404 لو المفتاح مالوش صلاحية عرض القايمة
+  catch (e) { if ([403, 404].includes(e.$metadata?.httpStatusCode) || ['NoSuchKey', 'AccessDenied', 'NotFound'].includes(e.name)) return null; throw e; }
 }
 
 function walk(dir, out = []) {
@@ -47,7 +53,7 @@ if (cmd === 'keygen') {
 } else if (cmd === 'seal') {
   const pub = fs.readFileSync(PUB, 'utf8');
   for (const f of args) {
-    const abs = path.resolve(f), rel = path.relative(STUDIO, abs).replace(/\/g, '/');
+    const abs = path.resolve(f), rel = path.relative(STUDIO, abs).split(path.sep).join('/');
     const key = crypto.randomBytes(32), iv = crypto.randomBytes(12);
     const c = crypto.createCipheriv('aes-256-gcm', key, iv);
     const body = Buffer.concat([c.update(fs.readFileSync(abs)), c.final()]);

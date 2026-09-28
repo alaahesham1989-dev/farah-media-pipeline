@@ -1,0 +1,81 @@
+name: استوديو فرح — مكنة الريلز
+
+# ريل (≈17 ث طولي، مزيكا وكلام كبير من غير صوت) لكل منتج منشور، ومتخزن على R2 — اللوحة بتعرضه في «🎬 فيديوهات المنتجات» وطابور النشر.
+# بيلف لوحده كل 3 ساعات: أي منتج جديد أو سعره/كلامه/صوره اتغيرت بياخد فيديو جديد، والباقي مابيتعملش تاني (بصمة لكل فيديو).
+# تشغيل يدوي بتعديل triggers/factory.txt — سطور زي:  only=code0013,code0028   أو   force=yes
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  push:
+    branches: [main]
+    paths: ['triggers/factory.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: studio-factory
+
+env:
+  R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+  R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  MEDIA_BUCKET: farah-media
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm ci
+        working-directory: studio
+      - name: فك المزيكا المرخصة (متشفرة في المشروع)
+        run: node studio/tools/assets-crypt.mjs open
+      - name: الريلز
+        working-directory: studio
+        run: |
+          ARGS="--shard ${{ matrix.shard }}/4 --upload"
+          if [ "${{ github.event_name }}" = "push" ] && [ -f ../triggers/factory.txt ]; then
+            ONLY=$(grep -oP '^only=\K.*' ../triggers/factory.txt | tr -d ' \r' || true)
+            FORCE=$(grep -oP '^force=\K.*' ../triggers/factory.txt | tr -d ' \r' || true)
+            [ -n "$ONLY" ] && ARGS="$ARGS --only $ONLY"
+            [ "$FORCE" = "yes" ] && ARGS="$ARGS --force"
+          fi
+          echo "▶ $ARGS"
+          node tools/factory.mjs $ARGS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: factory-${{ matrix.shard }}
+          path: studio/out/factory/results-*.json
+          retention-days: 3
+          if-no-files-found: ignore
+
+  index:
+    needs: render
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: factory-*
+          merge-multiple: true
+          path: results
+      - name: الفهرس
+        run: |
+          mkdir -p results
+          cd studio && npm ci --omit=dev --ignore-scripts && node tools/factory.mjs --merge ../results --upload

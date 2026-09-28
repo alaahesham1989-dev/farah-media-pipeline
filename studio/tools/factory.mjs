@@ -4,7 +4,7 @@
 // - الكلام من copy/reels.json (بنك Antigravity) لو موجود، وإلا من صفحة المنتج.
 // - لقطات الاستخدام من مكتبة Pexels اللي على R2 (stock/<group>/…) حسب مجموعة المنتج؛ اللقطات الحساسة مابتدخلش.
 // - بصمة لكل فيديو (السعر + الكلام + الصور): المنتج اللي ماتغيرش مابيتعملش تاني. المنتج الجديد بيتعمل لوحده في أول لفّة بعد نشره.
-// - --upload: الفيديو والصورة → R2 farah-media videos/reels/<code>/<sig>.mp4، والفهرس → private/videos/index.json (بتقراه اللوحة من /api/videos).
+// - --upload: الفيديو والصورة → R2 farah-media videos/reels/<code>/<sig>.mp4، والفهرس → videos/reels/index.json (اللوحة وطابور النشر بيقروه).
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from '../lib/paths.mjs';
@@ -12,13 +12,18 @@ import { refresh } from '../lib/data.mjs';
 import { buildReel, reelSig, priceOf, TRACKS } from '../lib/reel.mjs';
 
 const SITE = 'https://farahegypt.com';
+// أي خطأ بيطلع كملاحظة في GitHub (annotation) عشان يتقري من غير صلاحيات
+const oneLine = (e, n = 900) => String((e && (e.stack || e.message)) || e).split('\n').join(' | ').slice(0, n);
+const annotate = e => console.log(`::error title=factory::${oneLine(e)}`);
+process.on('uncaughtException', e => { annotate(e); process.exit(1); });
+process.on('unhandledRejection', e => { annotate(e); process.exit(1); });
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : (process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : true); };
 const ONLY = String(arg('only', '') || '').split(',').map(s => s.trim()).filter(Boolean);
 const LIMIT = Number(arg('limit', 0)) || 0;
 const [SH, SN] = String(arg('shard', '1/1')).split('/').map(Number);
 const FORCE = !!arg('force', false), DRY = !!arg('dry', false), UPLOAD = !!arg('upload', false);
 const OUT = path.join(ROOT, 'out', 'factory');
-const INDEX_KEY = 'private/videos/index.json';
+const INDEX_KEY = 'videos/reels/index.json'; // عام (بيتقري بـ ?t= عشان الكاش) — فيه لينكات الفيديوهات وكلام البوست بس
 const BUCKET = process.env.MEDIA_BUCKET || 'farah-media';
 
 async function r2() { return import('../../scripts/storage.mjs'); }
@@ -84,7 +89,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const results = [];
 if (run.length && !DRY) {
   const { startServer } = await import('../server.mjs').catch(() => ({}));
-  const { makeVideo } = await import('../lib/video.mjs');
+  const { makeVideo, durationOf } = await import('../lib/video.mjs');
   const srv = startServer ? await startServer(0) : null;
   const baseUrl = srv?.url || process.env.STUDIO_URL || 'http://localhost:4455';
   for (const { p, copy, st, sig, variant } of run) {
@@ -94,7 +99,7 @@ if (run.length && !DRY) {
     try {
       const file = await makeVideo(baseUrl, storyboard, { store, onLog: () => {} });
       const poster = file.replace(/\.mp4$/, '.jpg');
-      const item = { ...meta, sig, kind: 'reel', format: 'story', at: new Date().toISOString(), file: path.relative(ROOT, file) };
+      const item = { ...meta, sig, kind: 'reel', format: 'story', dur: +durationOf(file).toFixed(1), at: new Date().toISOString(), file: path.relative(ROOT, file) };
       if (UPLOAD) {
         const { putFileTo } = await r2();
         const key = `videos/reels/${p.id}/${sig}`;
@@ -104,7 +109,7 @@ if (run.length && !DRY) {
       }
       results.push(item);
       console.log(`✅ ${p.id} ${p.name} — ${path.basename(file)}`);
-    } catch (e) { console.log(`❌ ${p.id}: ${e.message}`); }
+    } catch (e) { console.log(`❌ ${p.id}: ${e.message}`); console.log(`::warning title=${p.id}::${oneLine(e, 600)}`); }
   }
   if (srv?.close) await srv.close();
 } else if (DRY) {
