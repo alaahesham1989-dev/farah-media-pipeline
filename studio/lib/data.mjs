@@ -43,11 +43,28 @@ export function toCard(p) {
   };
 }
 
+// النسخة من الموقع (بنجرب 4 مرات)، ولو النت وقع على السحابة: آخر نسخة سليمة محفوظة في R2 (private/store-data.json)
+async function storeData() {
+  let last;
+  for (let i = 0; i < 4; i++) {
+    try {
+      const r = await fetch(STORE_DATA, { headers: { 'user-agent': 'farah-studio' } });
+      if (r.ok) return await r.json();
+      last = new Error('store-data: ' + r.status);
+    } catch (e) { last = e; }
+    await new Promise(ok => setTimeout(ok, 3000 * (i + 1)));
+  }
+  if (process.env.R2_ACCESS_KEY_ID) {
+    const { getJsonFrom } = await import('../../scripts/storage.mjs');
+    const backup = await getJsonFrom(process.env.MEDIA_BUCKET || 'farah-media', 'private/store-data.json', null);
+    if (backup?.products?.length) { console.log('⚠️ الموقع مارَدّش — استخدمنا آخر نسخة محفوظة في R2'); return backup; }
+  }
+  throw last;
+}
+
 export async function refresh() {
   fs.mkdirSync(DATA, { recursive: true });
-  const r = await fetch(STORE_DATA, { headers: { 'user-agent': 'farah-studio' } });
-  if (!r.ok) throw new Error('store-data: ' + r.status);
-  const sd = await r.json();
+  const sd = await storeData();
   const shipping = sd.settings?.shipping || {};
   const snap = {
     at: new Date().toISOString(), source: sd.at || '',
