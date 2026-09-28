@@ -28,7 +28,9 @@ export function toCard(p) {
     oldPrice: orig > price ? orig : null,
     category: p.category || '',
     images: (p.images || []).map(abs),
-    video: p.video ? abs(p.video) : '',
+    imagesMeta: (p.imagesMeta || []).map(m => ({ url: abs(m?.url), kind: m?.kind || '' })),
+    // الفيديو الدعائي (videoKind 'promo' = /media/reel/<code>.mp4) هو ريل المكنة نفسه — مش لقطة حقيقية، فمايدخلش في ريل جديد
+    video: p.video && p.videoKind !== 'promo' && !/\/media\/reel\//.test(p.video) ? abs(p.video) : '',
     sub: kit?.adCopy?.headlines?.[0] || '',
     headlines: kit?.adCopy?.headlines || [],
     overlays: (kit?.carousel || []).map(c => c.overlay),
@@ -72,6 +74,12 @@ export async function refresh() {
     offers: (sd.offers || []).map(o => ({ id: o.id, title: o.title, subtitle: o.subtitle || '', kind: o.kind || 'price', discountType: o.discountType, value: o.value,
       minQty: o.minQty, reward: o.reward, productIds: o.productIds || [], categories: o.categories || [], scope: o.scope, startsAt: o.startsAt, endsAt: o.endsAt, status: o.status })),
     shipping: { freeShipping: shipping.freeShippingThreshold ?? null, freeShippingFar: shipping.zoneThresholds?.zone3 ?? null },
+    // عرض اليوم (settings/daily_deals): { startDate, queue: [{ productId, offerPrice }] } — منتج بسعر خاص بيتغير كل يوم
+    dailyDeals: sd.settings?.daily_deals ? { startDate: sd.settings.daily_deals.startDate || '', queue: Array.isArray(sd.settings.daily_deals.queue) ? sd.settings.daily_deals.queue : [] } : null,
+    // الكوبونات الدعائية (اللي المالك عايزها تتنشر) — اختياري، لو المتجر لسه مابيبعتهاش بتبقى فاضية
+    promoCoupons: (Array.isArray(sd.promoCoupons) ? sd.promoCoupons : []).filter(c => c && c.code).map(c => ({ id: String(c.id || c.code), code: String(c.code).toUpperCase(),
+      title: c.title || '', discountType: c.discountType || c.type || '', value: Number(c.value) || 0, minOrder: Number(c.minOrder ?? c.minSubtotal) || 0,
+      maxDiscount: Number(c.maxDiscount) || 0, startsAt: c.startsAt || '', endsAt: c.endsAt || '', active: c.active !== false })),
   };
   fs.writeFileSync(path.join(DATA, 'store.json'), JSON.stringify(snap, null, 1));
   return snap;

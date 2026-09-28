@@ -43,15 +43,26 @@ export function benefitsOf(p) {
     .sort((a, b) => a.length - b.length).slice(0, 3);
 }
 
-// السعر اللي الزبون هيدفعه النهارده: عرض شغّال على المنتج، وإلا الخصم الثابت (priceOriginal)
+// سعر المنتج تحت عرض — نفس حسبة المتجر (js/offers.js priceUnder): نسبة (90% بالكتير) / مبلغ بيتخصم / سعر نهائي
+export function offerPriceFor(o, regular) {
+  const v = Number(o?.value);
+  if (!(v > 0) || !(regular > 0)) return regular;
+  const p = Math.round(o.discountType === 'percent' ? regular * (1 - Math.min(v, 90) / 100) : o.discountType === 'price' ? v : regular - v);
+  return p >= 1 && p < regular ? p : regular;
+}
+// العرض بيشمل المنتج؟ (نفس appliesTo في المتجر: كل المنتجات / قسم / منتجات معينة)
+export const offerAppliesTo = (o, p) => (o.scope === 'all' ? true : o.scope === 'category' ? (o.categories || []).includes(p.category) : (o.productIds || []).includes(p.id));
+
+// السعر اللي الزبون هيدفعه النهارده: أرخص عرض سعر شغّال على المنتج (مش عروض السلة ولا لحظة الدفع)، وإلا الخصم الثابت (priceOriginal)
 export function priceOf(p, offers = [], now = Date.now()) {
   const live = offers.filter(o => o.status === 'active' && (!o.startsAt || Date.parse(o.startsAt) <= now) && o.endsAt && Date.parse(o.endsAt) > now);
+  let best = null;
   for (const o of live) {
-    if ((o.kind || 'price') !== 'price' || !(o.productIds || []).includes(p.id)) continue;
-    const v = Number(o.value) || 0;
-    const price = o.discountType === 'percent' ? Math.round(p.price * (1 - v / 100)) : o.discountType === 'price' ? v : p.price - v;
-    if (price > 0 && price < p.price) return { price, oldPrice: p.price, tag: o.title || 'عرض', endsAt: o.endsAt };
+    if (o.kind === 'cart' || o.kind === 'bump' || !offerAppliesTo(o, p)) continue;
+    const price = offerPriceFor(o, p.price);
+    if (price < p.price && (!best || price < best.price)) best = { price, oldPrice: p.price, tag: o.title || 'عرض', endsAt: o.endsAt };
   }
+  if (best) return best;
   const opening = live.find(o => /الافتتاح/.test(o.title || ''));
   if (p.oldPrice && p.oldPrice > p.price) return { price: p.price, oldPrice: p.oldPrice, tag: opening ? 'عروض الافتتاح' : 'خصم', endsAt: opening?.endsAt || '' };
   return { price: p.price, oldPrice: null, tag: '', endsAt: '' };

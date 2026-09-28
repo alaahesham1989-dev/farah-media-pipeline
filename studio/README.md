@@ -40,6 +40,27 @@ npm start
 
 الناتج كله في `out/` (الصور بالتاريخ، والفيديوهات في `out/videos`).
 
+## مكنة الريلز والنشر المجدول (`tools/factory.mjs` — على السحابة كل ساعة)
+
+`.github/workflows/studio-factory.yml` بيلف كل ساعة (دقيقة 7). أول خطوة `--plan` بتشوف فيه حاجة اتغيرت ولا لأ — لو مفيش، مفيش أجهزة بتقوم.
+الشغل بيتقسم على 4 أجهزة: الريلز بالترتيب، ومحتوى النشر بالمفتاح (مفيش حاجة بتتعمل مرتين)، والدمج في الآخر.
+
+| النوع | إيه | الملف على R2 (farah-media) |
+|---|---|---|
+| ريل المنتج | ≈17 ث طولي لكل منتج منشور | `videos/reels/<code>/<sig>.mp4` (+ `.jpg` + `-sheet.jpg`) — الفهرس `videos/reels/index.json` |
+| `product-image` | صورة إعلان 4:5 بسعر المنتج الحالي زي الموقع (ومعاه عرض اليوم): قالب الخصم `sale-ribbon` لو عليه خصم، وإلا `product-bar` | `promo/product-image/<code>/<sig>.jpg` |
+| `offer-reel` / `offer-image` | لكل منتج (6 بالكتير) في عرض سعر شغّال أو هيبدأ خلال يومين: العرض يخبط + السعر قبل/بعد + «العرض لحد …» (`sale-burst` للصورة) | `promo/offer-reel/<offerId>/<code>/<sig>.mp4` · `promo/offer-image/…/<sig>.jpg` |
+| `coupon-reel` / `coupon-image` | لكل كوبون في `promoCoupons` (من `/api/store-data`، لو موجودة): الكود كبير + القيمة + أقل طلب + آخر يوم (`coupon-ticket` للصورة) | `promo/coupon-reel/<couponId>/<sig>.mp4` · `promo/coupon-image/<couponId>/<sig>.jpg` |
+
+- **البصمة (sig):** من اللي بيظهر في الصورة/الفيديو بالظبط. السعر أو العرض أو الصورة يتغيروا → صورة وريل جداد لوحدهم في خلال ساعة.
+- **فهرس النشر** `promo/index.json` (عام على `https://farahegypt.com/media/promo/index.json?t=…`):
+  `{ at, items: { "<type>:<id>": { key, type, code?, offerId?, couponId?, title, caption, url, poster?, sheet?, sig, at, window?, products?, slug? } } }`
+  المفتاح: `product-image:<code>` · `offer-reel:<offerId>:<code>` · `offer-image:<offerId>:<code>` · `coupon-reel:<couponId>` · `coupon-image:<couponId>`.
+  في الدمج الفهرس بيبقى = اللي المفروض يتنشر دلوقتي بس: العرض/الكوبون اللي خلص أو اتشال، والمنتج اللي اتشال، والنسخة اللي سعرها اتغير — بيتشالوا.
+- **كلام البوست:** هوك + 2–3 مميزات ✔️ + السعر + الشحن والاستبدال + اللينك + `#فرح_مصر #FarahEgypt` — من `copy/reels.json` لو موجود. مفيش «الدفع عند الاستلام» ولا الكلمات الممنوعة في `copy/phrases.json`.
+- **الفيديو الدعائي** (`videoKind: 'promo'` = `/media/reel/<code>.mp4`) هو ريل المكنة نفسه، فمابيدخلش كلقطة حقيقية في ريل جديد.
+- **تجربة على الجهاز** (من غير رفع): `node tools/factory.mjs --dry` (الخطة بس) · `node tools/factory.mjs --only code0013 --skip-reels --types product-image` (صورة واحدة في `out/promo/`).
+
 ## «أمر التصميم» (اللي بيتبعت للكمبيوتر السحابي)
 
 ```json
