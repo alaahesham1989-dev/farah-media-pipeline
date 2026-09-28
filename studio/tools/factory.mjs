@@ -52,6 +52,16 @@ function copyBank() {
   try { const a = JSON.parse(fs.readFileSync(path.join(ROOT, 'copy', 'reels.json'), 'utf8')); return Object.fromEntries((Array.isArray(a) ? a : []).map(c => [c.code, c])); } catch { return {}; }
 }
 
+// صورة ملخص للفيديو: 8 لقطات في صورة واحدة (~80 كيلو) — المالك بيراجع منها من غير ما يصرف نت على تشغيل الفيديو
+async function makeSheet(file, out) {
+  const { execFileSync } = await import('node:child_process');
+  const { durationOf } = await import('../lib/video.mjs');
+  const { default: ff } = await import('ffmpeg-static');
+  const d = Math.max(4, durationOf(file) || 16);
+  execFileSync(ff, ['-v', 'error', '-y', '-ss', '0.4', '-i', file, '-vf', `fps=${(8 / (d - 0.4)).toFixed(4)},scale=180:-2,tile=4x2:padding=4:color=white`, '-frames:v', '1', '-q:v', '5', out]);
+  return out;
+}
+
 if (arg('merge', false)) {
   // دمج نتايج الأجهزة (shards) في الفهرس
   const dir = String(arg('merge'));
@@ -106,6 +116,11 @@ if (run.length && !DRY) {
         await putFileTo(BUCKET, key + '.mp4', fs.readFileSync(file), 'video/mp4');
         if (fs.existsSync(poster)) await putFileTo(BUCKET, key + '.jpg', fs.readFileSync(poster), 'image/jpeg');
         item.url = `/media/${key}.mp4`; item.poster = `/media/${key}.jpg`;
+        try {
+          const sheet = await makeSheet(file, file.replace(/\.mp4$/, '-sheet.jpg'));
+          await putFileTo(BUCKET, key + '-sheet.jpg', fs.readFileSync(sheet), 'image/jpeg');
+          item.sheet = `/media/${key}-sheet.jpg`;
+        } catch (e) { console.log(`⚠️ صورة الملخص ${p.id}: ${e.message}`); }
       }
       results.push(item);
       console.log(`✅ ${p.id} ${p.name} — ${path.basename(file)}`);
@@ -117,6 +132,26 @@ if (run.length && !DRY) {
     const { storyboard, meta } = buildReel(p, { copy, stock: st, offers: store.offers, track: TRACKS[variant], variant });
     fs.writeFileSync(path.join(OUT, `${p.id}.storyboard.json`), JSON.stringify(storyboard, null, 1));
     console.log(`📝 ${p.id} — ${storyboard.scenes.length} مشاهد، ${storyboard.scenes.reduce((a, s) => a + s.dur, 0).toFixed(1)} ث — ${meta.hook}`);
+  }
+}
+// الفيديوهات القديمة اللي مالهاش صورة ملخص: بنسحب الفيديو من المخزن (على السحابة — مش من نت المالك) ونعملها
+if (UPLOAD && !DRY) {
+  const done = new Set(results.map(r => r.code));
+  const { putFileTo } = await r2();
+  for (const p of todo) {
+    const it = index.items?.[p.id];
+    if (!it?.url || it.sheet || done.has(p.id)) continue;
+    try {
+      const tmp = path.join(OUT, `${p.id}-old.mp4`);
+      const r = await fetch(SITE + it.url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      fs.writeFileSync(tmp, Buffer.from(await r.arrayBuffer()));
+      const sheet = await makeSheet(tmp, tmp.replace(/\.mp4$/, '-sheet.jpg'));
+      const key = it.url.replace(/^\/media\//, '').replace(/\.mp4$/, '-sheet.jpg');
+      await putFileTo(BUCKET, key, fs.readFileSync(sheet), 'image/jpeg');
+      results.push({ code: p.id, sheet: `/media/${key}` });
+      console.log(`🖼️ ${p.id} صورة ملخص`);
+    } catch (e) { console.log(`⚠️ صورة الملخص ${p.id}: ${e.message}`); }
   }
 }
 fs.writeFileSync(path.join(OUT, `results-${SH}.json`), JSON.stringify({ at: new Date().toISOString(), items: results }, null, 1));
