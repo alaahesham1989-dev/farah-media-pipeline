@@ -250,7 +250,7 @@ export async function makeVideo(baseUrl, sb, { store, onLog = console.log, onSto
   if (sb.grade !== false) vf += `;[vout]eq=contrast=1.06:saturation=1.1:gamma=0.97,noise=alls=4:allf=t+u,vignette=angle=PI/5[vgr]`;
   const vmap = sb.grade !== false ? '[vgr]' : '[vout]';
   const final = path.join(outDir, name + '.mp4');
-  ff([...inputs, '-filter_complex', vf + (hasAudio ? ';' + af : ''), '-map', vmap, ...(hasAudio ? ['-map', '[aout]', '-c:a', 'aac', '-b:a', '160k'] : []),
+  ff([...inputs, '-filter_complex', vf + (hasAudio ? ';' + af : ''), '-map', vmap, ...(hasAudio ? ['-map', '[aout]', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000'] : []),
     ...X264, '-r', String(fps), '-t', total.toFixed(3), '-movflags', '+faststart', final]);
   ff(['-ss', String(Math.min(1.2, total / 3)), '-i', final, '-frames:v', '1', '-q:v', '3', final.replace(/\.mp4$/, '.jpg')]);
   fs.writeFileSync(final.replace(/\.mp4$/, '.json'), JSON.stringify(sb, null, 1));
