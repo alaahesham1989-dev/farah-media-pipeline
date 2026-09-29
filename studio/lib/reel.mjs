@@ -77,7 +77,8 @@ function defaultHook(p, pr, bens) {
 
 // بصمة المحتوى: لو السعر أو الكلام أو الصور اتغيرت، الفيديو بيتعمل تاني
 export function reelSig(p, copy, pr, stock) {
-  const h = crypto.createHash('sha1').update(JSON.stringify([p.name, pr, (p.images || []).slice(0, 4), p.video, copy || null, (stock || []).map(s => s.url), 'v1'])).digest('hex');
+  // v2 (29/9): لقطات Pexels العامة اتشالت من ريلز المنتجات (قرار المالك: مفيش صورة أو فيديو لمنتج تاني)
+  const h = crypto.createHash('sha1').update(JSON.stringify([p.name, pr, (p.images || []).slice(0, 4), p.video, copy || null, (stock || []).filter(s => s.match === true).map(s => s.url), 'v2'])).digest('hex');
   return h.slice(0, 10);
 }
 
@@ -94,7 +95,10 @@ export function buildReel(p, { copy = null, stock = [], offers = [], track = TRA
   const hook = cleanLine(copy?.hook || defaultHook(p, pr, bens));
   const women = WOMEN.test(p.category || '') || copy?.audience === 'women';
   const cta = copy?.cta || (women ? 'اطلبي دلوقتي' : 'اطلب دلوقتي');
-  const clips = stock.filter(s => !s.sensitive);
+  // قرار المالك 29/9: ممنوع أي لقطة فيها منتج أو أداة تانية غير منتجنا (زي حلاق بموس في إعلان ماكينة).
+  // لقطات المصادر المفتوحة بتدخل بس لو اتراجعت بالعين واتعلّم إنها نفس المنتج بالظبط (match: true — الماركة والموديل).
+  // غير كده الفيديو بيتبني من تصوير المنتج الحقيقي وصوره هو بس.
+  const clips = stock.filter(s => !s.sensitive && s.match === true);
   const real = p.video || '';
   const scenes = [];
 
