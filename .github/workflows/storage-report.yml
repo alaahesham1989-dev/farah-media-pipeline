@@ -1,0 +1,29 @@
+name: تقرير مساحة مخزن الموقع (R2)
+
+# قراية بس: حجم كل فولدر في farah-media، وعدد النسخ القديمة من الريلز والدعاية.
+# تشغيل: تعديل triggers/storage.txt أو من GitHub (Run workflow).
+on:
+  push:
+    branches: [main]
+    paths: ['triggers/storage.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      MEDIA_BUCKET: farah-media
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: node scripts/storage-report.mjs
