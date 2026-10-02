@@ -108,7 +108,10 @@ def main():
     for p in prods:
         code = p['id']
         metas = {m.get('url'): m for m in (p.get('imagesMeta') or [])}
-        cands = [u for u in (p.get('images') or []) if not (metas.get(u) or {}).get('textOnImage')][:3]
+        # صورة المنتج النضيفة (hero) الأول، وبعدها الباقي — والعلب والصور اللي عليها كلام آخر حاجة
+        imgs = [u for u in (p.get('images') or []) if not (metas.get(u) or {}).get('textOnImage')]
+        rank = lambda u: {'hero': 0, 'clean': 1}.get((metas.get(u) or {}).get('kind'), 2)
+        cands = sorted(imgs, key=rank)[:3]
         best = None
         for u in cands:
             try:
@@ -130,7 +133,7 @@ def main():
         key = f'cutouts/{code}/{sig}.png'
         client.put_object(Bucket=BUCKET, Key=key, Body=data, ContentType='image/png', CacheControl='public, max-age=31536000, immutable')
         index['items'][code] = {'code': code, 'name': p.get('name', ''), 'category': p.get('category', ''), 'url': '/media/' + key,
-                                'src': u, 'w': im.size[0], 'h': im.size[1], 'score': round(score, 2), 'note': note,
+                                'src': u, 'kind': (metas.get(u) or {}).get('kind', ''), 'w': im.size[0], 'h': im.size[1], 'score': round(score, 2), 'note': note,
                                 'ok': None, 'at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
         tiles.append((code, score, im))
     index['at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
