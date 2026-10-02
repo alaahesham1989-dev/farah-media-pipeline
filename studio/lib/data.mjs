@@ -28,7 +28,7 @@ export function toCard(p) {
     oldPrice: orig > price ? orig : null,
     category: p.category || '',
     images: (p.images || []).map(abs),
-    imagesMeta: (p.imagesMeta || []).map(m => ({ url: abs(m?.url), kind: m?.kind || '' })),
+    imagesMeta: (p.imagesMeta || []).map(m => ({ url: abs(m?.url), kind: m?.kind || '', text: !!m?.textOnImage })),
     // الفيديو الدعائي (videoKind 'promo' = /media/reel/<code>.mp4) هو ريل المكنة نفسه — مش لقطة حقيقية، فمايدخلش في ريل جديد
     video: p.video && p.videoKind !== 'promo' && !/\/media\/reel\//.test(p.video) ? abs(p.video) : '',
     sub: kit?.adCopy?.headlines?.[0] || '',

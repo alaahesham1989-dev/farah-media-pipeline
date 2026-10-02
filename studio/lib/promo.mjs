@@ -108,18 +108,36 @@ export const promoCouponList = (coupons = [], now = Date.now()) => coupons.filte
 });
 
 // ─── الصور ───────────────────────────────────────────────────────────────
-export function productImageJob(p, pr) {
-  const image = heroImage(p);
-  const name = cleanLine(p.name);
-  // «العرض لحد …» بيظهر بس لو عرض حقيقي على المنتج (مش الخصم الثابت)
-  const offerOn = pr.oldPrice && pr.price < p.price;
-  if (pr.oldPrice) return { template: 'sale-ribbon', skin: SKIN, format: 'portrait', data: { name, image, price: pr.price, oldPrice: pr.oldPrice, headline: pr.tag && pr.tag !== 'خصم' ? gold(cleanLine(pr.tag)) : '', endsAt: offerOn ? pr.endsAt || '' : '' } };
-  return { template: 'product-bar', skin: SKIN, format: 'portrait', data: { name, image, price: pr.price, sub: 'شحن لكل المحافظات' } };
+// بوسترات الإعلان (2/10 — المالك: جودة أعلى وأشكال كتير، العميل مايشوفش نفس الشكل كل بوست).
+// كل منتج بياخد شكل من الخمسة ولون (كحلي/كريمي) ثابتين بكوده، وصورة العرض بتاخد شكل تاني غير صورته.
+export const POSTERS = ['poster-catalog', 'poster-editorial', 'poster-check', 'poster-grid', 'poster-arch'];
+const pick = (seed, n) => parseInt(hex(seed).slice(0, 8), 16) % n;
+const skinOf = id => (pick('skin:' + id, 2) ? 'farah' : 'farah-light');
+// صور البوستر: الأولى = المنتج نفسه، وبعدها الصور النضيفة (من غير كلام عليها)
+export function posterImages(p) {
+  const hero = heroImage(p);
+  const clean = (p.imagesMeta || []).filter(m => m && m.url && !m.text && m.url !== hero).map(m => m.url);
+  const rest = clean.length ? clean : (p.images || []).filter(u => u && u !== hero);
+  return [hero, ...rest].filter(Boolean).slice(0, 4);
+}
+function posterData(p, copy, { price, oldPrice, badge, endsAt }) {
+  return { name: cleanLine(p.name), hook: safe(copy?.hook) || safe(copy?.hook2) || '', feats: benefitsFor(p, copy), images: posterImages(p),
+    price, oldPrice: oldPrice || 0, badge: badge || '', endsAt: endsAt || '' };
 }
 
-export function offerImageJob(o, p, { price, regular, soon }) {
+export function productImageJob(p, pr, copy = null) {
+  // «العرض لحد …» بيظهر بس لو عرض حقيقي على المنتج (مش الخصم الثابت)
+  const offerOn = pr.oldPrice && pr.price < p.price;
+  const badge = pr.oldPrice ? (pr.tag && pr.tag !== 'خصم' ? cleanLine(pr.tag) : 'خصم') : '';
+  return { template: POSTERS[pick('poster:' + p.id, POSTERS.length)], skin: skinOf(p.id), format: 'portrait',
+    data: posterData(p, copy, { price: pr.price, oldPrice: pr.oldPrice, badge, endsAt: offerOn ? pr.endsAt || '' : '' }) };
+}
+
+export function offerImageJob(o, p, { price, regular, soon }, copy = null) {
   const title = cleanLine(o.title) || 'عرض خاص';
-  return { template: 'sale-burst', skin: SKIN, format: 'portrait', data: { name: cleanLine(p.name), image: heroImage(p), price, oldPrice: regular, headline: gold(title) + (soon ? ` · يبدأ ${dayMonth(o.startsAt)}` : ''), endsAt: o.endsAt } };
+  const i = (pick('poster:' + p.id, POSTERS.length) + 2) % POSTERS.length;   // غير شكل صورة المنتج العادية
+  return { template: POSTERS[i], skin: skinOf('offer:' + p.id), format: 'portrait',
+    data: posterData(p, copy, { price, oldPrice: regular, badge: title + (soon ? ` · يبدأ ${dayMonth(o.startsAt)}` : ''), endsAt: o.endsAt }) };
 }
 
 export function couponImageJob(c) {
@@ -250,7 +268,7 @@ export function planPromo(store, { bank = {}, now = Date.now() } = {}) {
     if (!heroImage(p)) continue;
     const pr = priceOf(p, daily ? [...offers, daily] : offers, now);
     if (daily && pr.endsAt === daily.endsAt && pr.tag === daily.title) pr.endsAt = '';
-    const job = productImageJob(p, pr);
+    const job = productImageJob(p, pr, bank[p.id] || null);
     items.push({ key: `product-image:${p.id}`, type: 'product-image', kind: 'image', dir: p.id, code: p.id, slug: p.slug || '', products: [p.id],
       title: cleanLine(p.name), caption: productCaption(p, bank[p.id], pr), sig: sigOf(job), job,
       note: pr.oldPrice ? `${pr.price} ج بدل ${pr.oldPrice} ج${pr.tag ? ` (${pr.tag})` : ''}` : `${pr.price} ج` });
@@ -270,7 +288,7 @@ export function planPromo(store, { bank = {}, now = Date.now() } = {}) {
         caption: offerCaption(o, p, copy, x), window, note: `${r.price} ج بدل ${r.regular} ج${soon ? ' (لسه هيبدأ)' : ''}` };
       const sb = buildOfferReel(o, p, x, { copy, ...trackFor(id) });
       items.push({ key: `offer-reel:${id}`, type: 'offer-reel', kind: 'reel', ...common, sig: sigOf(sb), storyboard: sb });
-      const job = offerImageJob(o, p, x);
+      const job = offerImageJob(o, p, x, copy);
       items.push({ key: `offer-image:${id}`, type: 'offer-image', kind: 'image', ...common, sig: sigOf(job), job });
     }
   }

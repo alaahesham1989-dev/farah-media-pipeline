@@ -4,6 +4,7 @@ import { sale } from './sale.js';
 import { coupon } from './coupon.js';
 import { brand } from './brand.js';
 import { video } from './video.js';
+import { poster } from './poster.js';
 
 export const TYPES = [
   { id: 'product', name: 'صورة المنتج' },
@@ -11,6 +12,7 @@ export const TYPES = [
   { id: 'coupon', name: 'الكوبون' },
   { id: 'brand', name: 'كروت المتجر والفيديو' },
   { id: 'video', name: 'مشاهد الفيديو الحية' },
+  { id: 'poster', name: 'بوسترات الإعلان (أشكال كتير)' },
 ];
-export const TEMPLATES = [...product, ...sale, ...coupon, ...brand, ...video];
+export const TEMPLATES = [...product, ...sale, ...coupon, ...brand, ...video, ...poster];
 export const templateById = id => TEMPLATES.find(t => t.id === id);
