@@ -5,6 +5,7 @@ import { ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { s3 } from './storage.mjs';
 
 const Bucket = (process.env.MEDIA_BUCKET || 'farah-media').trim();
+process.on('unhandledRejection', e => { console.log('::error::' + String(e && e.message || e).slice(0, 300)); process.exit(1); });
 const objs = [];
 let token;
 do {
@@ -30,7 +31,7 @@ for (const [p, x] of by(2).slice(0, 20)) lines.push(`  ${p}: ${x.n} ملف · ${
 const ver = (prefix, depth) => {
   const m = new Map();
   for (const o of objs.filter(o => o.k.startsWith(prefix) && /\.(mp4|jpg|png|webp)$/.test(o.k))) {
-    const parts = o.k.split('/'); const dir = parts.slice(0, depth).join('/'); const sig = parts[depth].split(/[-.]/)[0];
+    const parts = o.k.split('/'); const dir = parts.slice(0, -1).join('/'); const sig = parts[parts.length - 1].split(/[-.]/)[0];
     const x = m.get(dir) || new Map(); x.set(sig, (x.get(sig) || 0) + o.s); m.set(dir, x);
   }
   let old = 0, oldN = 0;
