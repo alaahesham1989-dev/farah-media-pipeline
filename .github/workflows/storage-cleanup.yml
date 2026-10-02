@@ -1,0 +1,42 @@
+name: تنضيف مخزن الموقع (النسخ القديمة)
+
+# بيمسح النسخ القديمة من ريلز المنتجات ومحتوى الدعاية، والعروض اللي خلصت — بعد 3 أيام، وبس اللي مش في الفهرس ولا في طابور النشر.
+# مابيلمسش صور المنتجات ولا المكتبة ولا اللقطات. القواعد في scripts/storage-cleanup.mjs.
+# كل يوم الساعة 4 الفجر بتوقيت مصر. ويدوي: triggers/cleanup.txt (سطر apply=yes = مسح، غير كده = عرض بس).
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  push:
+    branches: [main]
+    paths: ['triggers/cleanup.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: storage-cleanup
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      MEDIA_BUCKET: farah-media
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: تنضيف
+        run: |
+          MODE=""
+          if [ "${{ github.event_name }}" = "schedule" ]; then MODE="--apply"; fi
+          if [ "${{ github.event_name }}" = "push" ] && grep -q '^apply=yes' triggers/cleanup.txt; then MODE="--apply"; fi
+          echo "▶ $MODE"
+          node scripts/storage-cleanup.mjs $MODE
+      - name: المساحة بعد التنضيف
+        run: node scripts/storage-report.mjs
