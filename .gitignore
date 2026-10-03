@@ -7,3 +7,6 @@ tmp/
 catalog/*
 !catalog/media-plan.json
 !catalog/media-fixes.json
+
+# تقارير المطابقة مع الموردين (أسعار وأسماء صفقة) — محلية بس، ممنوعة في المشروع العام
+reports/
