@@ -1,0 +1,38 @@
+name: صور صغيرة للمتجر (480px)
+
+# نسخ WebP صغيرة من صور المنتجات للكروت والمصغرات في farahegypt.com (أخف على باقة الموبايل).
+# كل يوم الساعة 5 الفجر بتوقيت مصر (اللي ناقص بس)، أو بتعديل triggers/thumbs.txt (سطر force=yes = يعيد الكل).
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  push:
+    branches: [main]
+    paths: ['triggers/thumbs.txt', 'scripts/thumbs.mjs']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: thumbs
+
+jobs:
+  thumbs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      MEDIA_BUCKET: farah-media
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm i --no-save sharp
+      - name: الصور الصغيرة
+        run: |
+          MODE=""
+          if [ "${{ github.event_name }}" = "push" ] && grep -q '^force=yes' triggers/thumbs.txt 2>/dev/null; then MODE="--force"; fi
+          node scripts/thumbs.mjs $MODE
