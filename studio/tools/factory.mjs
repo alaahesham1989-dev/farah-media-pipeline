@@ -87,7 +87,8 @@ if (arg('merge', false)) {
   const idx = await readIndex();
   for (const f of files.filter(f => f.startsWith('results-'))) {
     const r = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-    for (const it of r.items || []) idx.items[it.code] = { ...(idx.items[it.code] || {}), ...it };
+    // ريل احترافي مثبّت من المالك (pro: true) مابيتبدلش بريل المكنة
+    for (const it of r.items || []) if (!idx.items[it.code]?.pro) idx.items[it.code] = { ...(idx.items[it.code] || {}), ...it };
   }
   idx.at = new Date().toISOString();
   if (UPLOAD) { const { putFileTo } = await r2(); await putFileTo(BUCKET, INDEX_KEY, JSON.stringify(idx), 'application/json'); }
@@ -121,6 +122,7 @@ for (const p of todo) {
   const copy = bank[p.id] || null;
   const st = stock[p.id] || [];
   const sig = reelSig(p, copy, priceOf(p, store.offers), st);
+  if (index.items?.[p.id]?.pro) continue; // ريل احترافي مثبّت (/api/pro-reel) — المكنة ماتلمسوش
   if (!FORCE && index.items?.[p.id]?.sig === sig) continue;
   plan.push({ p, copy, st, sig, variant: Number(p.id.replace(/\D/g, '')) % TRACKS.length });
 }
