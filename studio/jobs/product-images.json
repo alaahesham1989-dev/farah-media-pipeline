@@ -1,5 +1,0 @@
-[
-  { "template": "product-minimal", "skin": "farah", "formats": ["square", "portrait"], "product": "code0009" },
-  { "template": "product-bar", "skin": "farah", "formats": ["square", "portrait", "story"], "product": "code0009" },
-  { "template": "product-frame", "skin": "farah-light", "formats": ["portrait"], "product": "code0009", "imageIndex": 1 }
-]
