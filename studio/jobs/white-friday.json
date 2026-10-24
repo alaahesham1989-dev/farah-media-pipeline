@@ -1,7 +1,0 @@
-[
-  { "template": "brand-season", "skin": "white-friday", "formats": ["portrait", "story"], "data": { "headline": "خصومات على **منتجات مختارة**", "startsAt": "2026-11-20", "endsAt": "2026-11-30" } },
-  { "template": "sale-ribbon", "skin": "white-friday", "formats": ["portrait", "story"], "product": "code0005", "data": { "endsAt": "2026-11-30" } },
-  { "template": "sale-split", "skin": "white-friday", "formats": ["portrait", "story"], "product": "code0011", "data": { "endsAt": "2026-11-30" } },
-  { "template": "sale-burst", "skin": "white-friday", "formats": ["portrait", "story"], "product": "code0002", "data": { "endsAt": "2026-11-30" } },
-  { "template": "coupon-ticket", "skin": "white-friday", "formats": ["portrait", "story"], "data": { "code": "WHITE50", "type": "amount", "value": 50, "minSubtotal": 400, "endsAt": "2026-11-30" } }
-]
